@@ -1,64 +1,51 @@
-(function (){
+(function() {
   'use strict';
 
+  angular.module('ShoppingListCheckOff', [])
+  .controller('ToBuyShoppingController', ToBuyShoppingController)
+  .controller('AlreadyBoughtShoppingController', AlreadyBoughtShoppingController)
+  .service('ShoppingListCheckOffService', ShoppingListCheckOffService);
 
-  angular.module('LunchCheck', []).controller('LunchCheckController', LunchCheckController);
+  ToBuyShoppingController.$inject = ['ShoppingListCheckOffService'];
+  AlreadyBoughtShoppingController.$inject = ['ShoppingListCheckOffService'];
 
-  LunchCheckController.$inject = ['$scope'];
-  function LunchCheckController($scope){
-    $scope.name = "";
-    $scope.totalValue = 0;
-    $scope.style= {}
-    $scope.textBox= {}
-    $scope.visible=false;
-    $scope.displayNumeric = function () {
-      var totalNameValue = calculateNumericForString($scope.name);
-      $scope.totalValue = totalNameValue;
+  function ToBuyShoppingController(ShoppingListCheckOffService){
+    var buy = this;
+    buy.items = ShoppingListCheckOffService.GetItemsToBuy();
+    buy.buyItem = function(index) {
+      ShoppingListCheckOffService.buyItem(index);
     };
-    function calculateNumericForString(food) {
-
-      var expresionRegular = /\s*,\s*/;
-      var count = food.split(expresionRegular);
-      var a = "Enjoy" ;
-      var b = "Too much!";
-      var c = "Please enter data first";
-      var num=0;
-
-      if (count != 0){
-        for (var i = 0; i < count.length; i++) {
-          if(count[i].trim()!=""){
-            num++;
-          }
-        }
-      }
-      if (num <= 3 && num != 0){
-        $scope.style= {
-          color: "green"
-        }
-        $scope.textBox= {
-          border: "solid 3px green"
-        }
-        $scope.visible=true;
-        return (a);
-      } else if (num>3){
-        $scope.style= {
-          color: "green"
-        }
-        $scope.textBox= {
-          border: "solid 3px green"
-        }
-        $scope.visible=true;
-        return (b);
-      }
-      else{
-        $scope.style= {
-          color: "red"
-        }
-        $scope.textBox= {
-          border: "solid 3px red"
-        }
-        $scope.visible=true;
-        return (c);
-      }}
   };
+
+  function AlreadyBoughtShoppingController(ShoppingListCheckOffService) {
+    var bought = this;
+    bought.items = ShoppingListCheckOffService.GetBoughtItems();
+  };
+
+  function ShoppingListCheckOffService() {
+    var service = this;
+    var toBuyItems = [
+      { name: "gallinas", quantity: 5 },
+      { name: "yucas", quantity: 3 },
+      { name: "papas criollas", quantity: 6},
+      { name: "libras de goulash", quantity: 8 },
+      { name: "cervezas", quantity: 30 }
+    ];
+    var boughtItems = [];
+
+    service.GetItemsToBuy = function() {
+      return toBuyItems;
+    };
+
+    service.GetBoughtItems = function() {
+      return boughtItems;
+    };
+
+    service.buyItem = function(itemIndex) {
+      var item = toBuyItems[itemIndex];
+      boughtItems.push(item);
+      toBuyItems.splice(itemIndex, 1);
+    };
+  };
+
 })();
